@@ -1,0 +1,16 @@
+node_modules
+.env
+.env.local
+.env.production
+npm-debug.log*
+
+# User-uploaded product photos/textures — real deployments should back these
+# up separately (or move to object storage); they don't belong in git.
+uploads/images/*
+uploads/textures/*
+!uploads/images/.gitkeep
+!uploads/textures/.gitkeep
+
+.DS_Store
+*.log
+logs/

@@ -1,0 +1,18 @@
+node_modules
+.DS_Store
+*.log
+
+# docker-compose variables (DOMAIN/ADMIN_DOMAIN/API_DOMAIN/LETSENCRYPT_EMAIL)
+.env
+.env.local
+
+# Let's Encrypt private keys + ACME webroot, created on the server by
+# docker/init-letsencrypt.sh — never belongs in git.
+data/
+
+# Claude Code's local session/permission state — machine-specific, not
+# project source.
+.claude/
+
+# Each app also has its own .gitignore for node_modules/dist/.env — this
+# root file only covers what's outside those directories.

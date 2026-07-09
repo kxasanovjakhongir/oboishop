@@ -1,0 +1,89 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file:
+      # Copy backend/.env.example -> backend/.env.production and fill in
+      # real secrets before first deploy — never commit that file.
+      - ./backend/.env.production
+    environment:
+      # Overrides the file above: inside the compose network the DB is
+      # reached by service name, not localhost.
+      NODE_ENV: production
+      MONGODB_URI: mongodb://mongo:27017/wallpaper_studio
+      CORS_ORIGINS: https://${DOMAIN},https://www.${DOMAIN},https://${ADMIN_DOMAIN}
+    volumes:
+      - backend_uploads:/app/uploads
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: https://${API_DOMAIN}/api
+        VITE_SITE_URL: https://${DOMAIN}
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  admin:
+    build:
+      context: ./admin
+      args:
+        VITE_API_URL: https://${API_DOMAIN}/api
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  gateway:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+      ADMIN_DOMAIN: ${ADMIN_DOMAIN}
+      API_DOMAIN: ${API_DOMAIN}
+    volumes:
+      - ./docker/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./docker/ssl-params.conf:/etc/nginx/ssl-params.conf:ro
+      - ./data/certbot/www:/var/www/certbot:ro
+      - ./data/certbot/conf:/etc/letsencrypt:ro
+    depends_on:
+      - frontend
+      - admin
+      - backend
+
+  # Renews the Let's Encrypt cert twice a day (a no-op unless it's within
+  # 30 days of expiry). The FIRST cert is issued by docker/init-letsencrypt.sh,
+  # not by this service.
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./data/certbot/www:/var/www/certbot
+      - ./data/certbot/conf:/etc/letsencrypt
+    entrypoint: >
+      /bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot; sleep 12h & wait $${!}; done;'
+
+volumes:
+  mongo_data:
+  backend_uploads:
