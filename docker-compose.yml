@@ -1,11 +1,11 @@
 services:
   mongo:
-    image: mongo:7
+    image: mongo:4.4
     restart: unless-stopped
     volumes:
       - mongo_data:/data/db
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongo", "--quiet", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -64,7 +64,8 @@ services:
       ADMIN_DOMAIN: ${ADMIN_DOMAIN}
       API_DOMAIN: ${API_DOMAIN}
     volumes:
-      - ./docker/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./docker/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro 
+      - ./docker/hash-bucket.conf:/etc/nginx/conf.d/00-hash.conf:ro
       - ./docker/ssl-params.conf:/etc/nginx/ssl-params.conf:ro
       - ./data/certbot/www:/var/www/certbot:ro
       - ./data/certbot/conf:/etc/letsencrypt:ro

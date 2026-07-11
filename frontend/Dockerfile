@@ -15,7 +15,8 @@ ARG VITE_SITE_URL
 ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_SITE_URL=$VITE_SITE_URL
 
-RUN npm run build
+RUN NODE_OPTIONS="--max-old-space-size=2048" npm run build
+
 
 # ── Runtime stage ────────────────────────────────────────────────────────
 FROM nginx:1.27-alpine
@@ -27,3 +28,6 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
+
+
+
