@@ -91,11 +91,11 @@ export default function WallpaperCard({ wallpaper }) {
           )}
 
           {/* Action buttons: like, zoom, download */}
-          <div className="absolute top-3 right-3 flex flex-col gap-1.5">
+          <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 flex flex-col gap-1.5">
             <button
               onClick={stop(() => toggleFavorite(wallpaper._id))}
               aria-label={t('header.favorites')}
-              className={`w-8 h-8 rounded-full flex items-center justify-center shadow transition-all ${
+              className={`w-11 h-11 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shadow transition-all active:scale-90 touch-manipulation ${
                 liked ? 'bg-red-600 text-white' : 'bg-white/90 text-stone-500 hover:text-red-600'
               }`}
             >
@@ -108,7 +108,7 @@ export default function WallpaperCard({ wallpaper }) {
                 <button
                   onClick={stop(() => setLightboxOpen(true))}
                   aria-label={t('common.zoom')}
-                  className="w-8 h-8 rounded-full bg-white/90 text-stone-500 hover:text-orange-600 flex items-center justify-center shadow transition-all"
+                  className="w-11 h-11 sm:w-8 sm:h-8 rounded-full bg-white/90 text-stone-500 hover:text-orange-600 flex items-center justify-center shadow transition-all active:scale-90 touch-manipulation"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -118,7 +118,7 @@ export default function WallpaperCard({ wallpaper }) {
                 <button
                   onClick={stop(handleDownload)}
                   aria-label={t('common.download')}
-                  className="w-8 h-8 rounded-full bg-white/90 text-stone-500 hover:text-orange-600 flex items-center justify-center shadow transition-all"
+                  className="w-11 h-11 sm:w-8 sm:h-8 rounded-full bg-white/90 text-stone-500 hover:text-orange-600 flex items-center justify-center shadow transition-all active:scale-90 touch-manipulation"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
@@ -128,10 +128,11 @@ export default function WallpaperCard({ wallpaper }) {
             )}
           </div>
 
-          {/* Hover overlay — specs + 3D view */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none flex flex-col justify-end p-3">
+          {/* Specs + 3D view — always visible on mobile (no hover state to reveal
+              it there), reverts to a hover-reveal overlay on desktop */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300 pointer-events-none flex flex-col justify-end p-3">
             {specs.length > 0 && (
-              <div className="text-white text-xs space-y-0.5 mb-3">
+              <div className="hidden sm:block text-white text-xs space-y-0.5 mb-3">
                 {specs.map(([label, value]) => (
                   <p key={label}><span className="text-white/60">/ {label}:</span> {value}</p>
                 ))}
@@ -139,7 +140,7 @@ export default function WallpaperCard({ wallpaper }) {
             )}
             <button
               onClick={stop(() => navigate(`/3d-studio?wallpaper=${wallpaper._id}`))}
-              className="pointer-events-auto w-full bg-orange-600 text-white text-xs font-bold py-2 px-3 rounded-xl hover:bg-orange-500 transition-colors flex items-center justify-center gap-1.5">
+              className="pointer-events-auto w-full bg-orange-600 text-white text-xs font-bold py-2.5 sm:py-2 px-3 rounded-xl hover:bg-orange-500 active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 touch-manipulation">
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
               </svg>

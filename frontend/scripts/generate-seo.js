@@ -28,7 +28,7 @@ function loadEnv(file) {
 
 const env = { ...loadEnv('.env'), ...loadEnv('.env.production'), ...process.env };
 const SITE_URL = (env.VITE_SITE_URL || 'http://localhost:3000').replace(/\/$/, '');
-const API_URL = (env.VITE_API_URL || 'http://localhost:8003/api').replace(/\/$/, '');
+const API_URL = (env.VITE_API_URL || 'http://localhost:8004/api').replace(/\/$/, '');
 
 const STATIC_ROUTES = [
   { path: '/', priority: '1.0', changefreq: 'daily' },

@@ -23,6 +23,15 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.01em;
 }
 
+/* iOS Safari auto-zooms the page on focus for any text input under 16px —
+   this floors every form field site-wide so that never happens, without
+   having to hunt down every text-sm/text-xs input individually. Sits
+   outside any @layer, so per CSS cascade-layer rules it wins over Tailwind's
+   layered utility classes regardless of source order. */
+input, textarea, select {
+  font-size: 16px;
+}
+
 @layer components {
   .btn-primary {
     @apply bg-orange-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-orange-700 transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 inline-block;

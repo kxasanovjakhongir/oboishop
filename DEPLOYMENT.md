@@ -157,41 +157,172 @@ docker image prune -f   # eski image'larni tozalash
 
 ## Muqobil yo'l: Docker'siz (PM2 + tizim Nginx + tizim MongoDB)
 
-Agar Docker ishlatmoqchi bo'lmasangiz:
+Agar Docker ishlatmoqchi bo'lmasangiz, loyihaning uchta qismi (frontend, admin — statik build; backend — PM2 orqali doimiy process) alohida sozlanadi.
+
+### 1. Serverga ulanish
 
 ```bash
-# Node.js 20, MongoDB, Nginx, PM2 o'rnatish
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -
-apt install -y nodejs nginx mongodb-org
-npm install -g pm2
+ssh root@<server_IP>
+```
 
-git clone https://github.com/<username>/oboy.git ~/oboy && cd ~/oboy
+### 2. Kerakli paketlar (Node + Nginx + PM2 + MongoDB)
+
+```bash
+apt update && apt upgrade -y
+apt install -y nginx git curl gnupg
+
+# Node.js 20
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+apt install -y nodejs
+npm i -g pm2
+
+# MongoDB 7 — Ubuntu 22.04 (jammy) uchun. Boshqa versiya bo'lsa
+# mongodb.com/docs/manual/administration/install-on-linux dan aniq buyruqni oling.
+curl -fsSL https://pgp.mongodb.com/server-7.0.asc | gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
+echo "deb [signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+apt update
+apt install -y mongodb-org
+systemctl enable --now mongod
+```
+
+### 3. Loyihani yuklash va tayyorlash
+
+```bash
+cd /var/www
+git clone https://github.com/kxasanovjakhongir/oboishop.git myapp
+cd myapp
 
 # Backend
-cd backend && npm ci --omit=dev
+cd backend
+npm ci --omit=dev
 cp .env.example .env
-nano .env   # PORT, MONGODB_URI=mongodb://localhost:27017/wallpaper_studio, JWT_SECRET, va h.k.
-pm2 start ecosystem.config.js --env production
-pm2 save && pm2 startup   # server reboot'da avtomatik ishga tushishi uchun
+nano .env
+# To'ldiring:
+#   PORT=8004
+#   NODE_ENV=production
+#   MONGODB_URI=mongodb://localhost:27017/wallpaper_studio
+#   JWT_SECRET=<node -e "console.log(require('crypto').randomBytes(48).toString('hex'))">
+#   ADMIN_USERNAME, ADMIN_PASSWORD
+#   TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
+#   CORS_ORIGINS=https://oboishop.uz,https://www.oboishop.uz,https://admin.oboishop.uz
 
-# Frontend va Admin — statik build, Nginx orqali serve qilinadi
-cd ../frontend && npm ci && npm run build
-cd ../admin && npm ci && npm run build
+# Frontend
+cd ../frontend
+npm ci
+cp .env.example .env.production
+nano .env.production
+#   VITE_API_URL=https://api.oboishop.uz/api
+#   VITE_SITE_URL=https://oboishop.uz
+npm run build          # -> frontend/dist
 
-# Nginx: har bir domen uchun serverblock yozing, root'ni tegishli dist/ ga
-# ko'rsating (frontend/nginx.conf va admin/nginx.conf shablon sifatida
-# ishlatilishi mumkin — root yo'lini /var/www/... ga moslang) va
-# /api ni backend'ga (http://localhost:8003) proxy_pass qiling.
-cp frontend/nginx.conf /etc/nginx/sites-available/oboishop
+# Admin
+cd ../admin
+npm ci
+cp .env.example .env.production
+nano .env.production
+#   VITE_API_URL=https://api.oboishop.uz/api
+npm run build           # -> admin/dist
+```
+
+### 4. Nginx — uchta alohida server blok (`/etc/nginx/sites-available/oboishop`)
+
+```nginx
+# Frontend (mijozlar sayti)
+server {
+    listen 80;
+    server_name oboishop.uz www.oboishop.uz;
+    root /var/www/myapp/frontend/dist;
+    index index.html;
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+}
+
+# Admin panel
+server {
+    listen 80;
+    server_name admin.oboishop.uz;
+    root /var/www/myapp/admin/dist;
+    index index.html;
+    add_header X-Robots-Tag "noindex, nofollow" always;
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+
+# Backend API
+server {
+    listen 80;
+    server_name api.oboishop.uz;
+    client_max_body_size 20m;
+    location / {
+        proxy_pass http://localhost:8004;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+```bash
 ln -s /etc/nginx/sites-available/oboishop /etc/nginx/sites-enabled/
+rm -f /etc/nginx/sites-enabled/default
 nginx -t && systemctl reload nginx
+```
 
-# SSL
+### 5. Backend'ni PM2 bilan ishga tushirish
+
+Loyihada tayyor `ecosystem.config.js` bor — shuni ishlatamiz:
+
+```bash
+cd /var/www/myapp/backend
+pm2 start ecosystem.config.js --env production
+pm2 save
+pm2 startup   # chiqqan buyruqni nusxalab, alohida ishga tushiring
+```
+
+Frontend va admin — statik fayllar, PM2 shart emas, Nginx to'g'ridan-to'g'ri serve qiladi.
+
+### 6. SSL — barcha 4 nom uchun birdan
+
+```bash
 apt install -y certbot python3-certbot-nginx
 certbot --nginx -d oboishop.uz -d www.oboishop.uz -d admin.oboishop.uz -d api.oboishop.uz
 ```
 
-PM2 logotiplari: `pm2 logs oboy-backend`, qayta ishga tushirish: `pm2 restart oboy-backend`.
+### 7. Firewall
+
+```bash
+ufw allow OpenSSH
+ufw allow 'Nginx Full'
+ufw enable
+```
+
+### Foydali PM2 buyruqlari
+
+```bash
+pm2 logs oboy-backend       # jonli loglar
+pm2 restart oboy-backend    # qayta ishga tushirish
+pm2 status                  # holatni ko'rish
+```
+
+### Yangilash
+
+```bash
+cd /var/www/myapp && git pull
+cd backend && npm ci --omit=dev && pm2 restart oboy-backend
+cd ../frontend && npm ci && npm run build
+cd ../admin && npm ci && npm run build
+```
 
 ---
 

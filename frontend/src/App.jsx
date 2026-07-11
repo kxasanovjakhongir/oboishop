@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import useStore from './store/useStore';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
+import BottomNav from './components/layout/BottomNav';
 import SiteRatingPopup from './components/ui/SiteRatingPopup';
 import Home from './pages/Home';
 import Catalog from './pages/Catalog';
@@ -48,7 +49,7 @@ function AppLayout() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-stone-50 dark:bg-stone-950 transition-colors overflow-x-hidden">
+    <div className="flex flex-col min-h-screen bg-stone-50 dark:bg-stone-950 transition-colors overflow-x-hidden pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
       <Header />
       <div className="flex-1">
         <Routes>
@@ -67,6 +68,7 @@ function AppLayout() {
       </div>
       <Footer />
       <SiteRatingPopup />
+      <BottomNav />
     </div>
   );
 }

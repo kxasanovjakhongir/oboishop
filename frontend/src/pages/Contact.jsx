@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { createContact, getSettings } from '../api';
 import SEO from '../components/ui/SEO';
+import { formatUzPhone } from '../utils/phone';
 
 const DEFAULT_SETTINGS = {
   phone: '+998 90 123 45 67',
@@ -147,12 +148,14 @@ export default function Contact() {
                   <div>
                     <label className="block text-sm font-semibold text-stone-700 dark:text-stone-200 mb-2">{t('contact.nameLabel')}</label>
                     <input name="name" value={form.name} onChange={handleChange} required
+                      autoComplete="name"
                       placeholder={t('contact.namePlaceholder')}
                       className="w-full border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all bg-stone-50 dark:bg-stone-800 dark:text-white focus:bg-white dark:focus:bg-stone-800" />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-stone-700 dark:text-stone-200 mb-2">{t('contact.phoneLabel')}</label>
-                    <input name="phone" value={form.phone} onChange={handleChange} required
+                    <input name="phone" type="tel" inputMode="tel" autoComplete="tel" value={form.phone}
+                      onChange={(e) => setForm((f) => ({ ...f, phone: formatUzPhone(e.target.value) }))} required
                       placeholder="+998 90 123 45 67"
                       className="w-full border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all bg-stone-50 dark:bg-stone-800 dark:text-white focus:bg-white dark:focus:bg-stone-800" />
                   </div>

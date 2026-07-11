@@ -48,7 +48,7 @@ export default function SiteRatingPopup() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.95 }}
           transition={{ type: 'spring', damping: 20, stiffness: 260 }}
-          className="fixed bottom-5 right-5 z-[90] w-[calc(100%-2.5rem)] max-w-sm bg-white dark:bg-stone-900 rounded-2xl shadow-2xl border border-stone-100 dark:border-stone-800 p-5"
+          className="fixed right-5 left-5 sm:left-auto bottom-[calc(5.5rem+env(safe-area-inset-bottom))] lg:bottom-5 z-[90] sm:w-[calc(100%-2.5rem)] max-w-sm bg-white dark:bg-stone-900 rounded-2xl shadow-2xl border border-stone-100 dark:border-stone-800 p-5"
         >
           <button
             onClick={dismiss}

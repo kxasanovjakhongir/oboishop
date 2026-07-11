@@ -46,16 +46,21 @@ export default function ControlPanel({ onClose }: { onClose?: () => void }) {
   });
 
   return (
-    <div className="w-80 bg-orange-950/95 backdrop-blur-lg text-white h-full flex flex-col border-l border-white/10">
+    <div className="w-full h-[80vh] max-h-[640px] rounded-t-3xl lg:rounded-none lg:w-80 lg:h-full bg-orange-950/95 backdrop-blur-lg text-white flex flex-col border-t lg:border-t-0 lg:border-l border-white/10 overflow-hidden">
+      {/* Drag handle — mobile-only visual affordance that this is a sheet */}
+      <div className="lg:hidden flex justify-center pt-2.5 pb-1 flex-shrink-0">
+        <div className="w-10 h-1.5 rounded-full bg-white/25" />
+      </div>
+
       {/* Header */}
-      <div className="p-4 border-b border-white/10 flex items-center justify-between">
+      <div className="p-4 pt-1 lg:pt-4 border-b border-white/10 flex items-center justify-between flex-shrink-0">
         <div>
           <h2 className="font-bold text-base">{t('studio.title')}</h2>
           <p className="text-white/50 text-xs mt-0.5">{t('studio.subtitle')}</p>
         </div>
         {onClose && (
-          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-white/10 flex items-center justify-center transition-colors">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button onClick={onClose} className="lg:hidden w-11 h-11 -mr-1.5 rounded-lg hover:bg-white/10 active:bg-white/20 flex items-center justify-center transition-colors touch-manipulation">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -63,16 +68,16 @@ export default function ControlPanel({ onClose }: { onClose?: () => void }) {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-white/10">
+      <div className="flex border-b border-white/10 flex-shrink-0">
         <button
           onClick={() => setActiveTab('wallpapers')}
-          className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${activeTab === 'wallpapers' ? 'text-orange-400 border-b-2 border-orange-400' : 'text-white/50 hover:text-white/80'}`}
+          className={`flex-1 py-3 text-sm font-semibold transition-colors touch-manipulation ${activeTab === 'wallpapers' ? 'text-orange-400 border-b-2 border-orange-400' : 'text-white/50 hover:text-white/80'}`}
         >
           {t('studio.tabs.wallpapers')}
         </button>
         <button
           onClick={() => setActiveTab('settings')}
-          className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${activeTab === 'settings' ? 'text-orange-400 border-b-2 border-orange-400' : 'text-white/50 hover:text-white/80'}`}
+          className={`flex-1 py-3 text-sm font-semibold transition-colors touch-manipulation ${activeTab === 'settings' ? 'text-orange-400 border-b-2 border-orange-400' : 'text-white/50 hover:text-white/80'}`}
         >
           {t('studio.tabs.settings')}
         </button>
@@ -217,11 +222,11 @@ export default function ControlPanel({ onClose }: { onClose?: () => void }) {
       )}
 
       {/* Apply Button */}
-      <div className="p-4 border-t border-white/10 space-y-2">
+      <div className="p-4 border-t border-white/10 space-y-2 flex-shrink-0 pb-[calc(1rem+env(safe-area-inset-bottom))]">
         <button
           onClick={() => selectedWallpaper && applyWallpaper(selectedWallpaper, targetWall)}
           disabled={!selectedWallpaper}
-          className="w-full bg-orange-600 text-white py-3 rounded-xl font-bold text-sm hover:bg-orange-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="w-full bg-orange-600 text-white py-3.5 rounded-xl font-bold text-sm hover:bg-orange-700 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed touch-manipulation"
         >
           {selectedWallpaper ? t('studio.applyButton', { name: selectedWallpaper.name }) : t('studio.selectWallpaper')}
         </button>

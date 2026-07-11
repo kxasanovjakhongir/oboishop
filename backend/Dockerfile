@@ -16,9 +16,9 @@ RUN mkdir -p uploads/images uploads/textures && \
 USER app
 
 ENV NODE_ENV=production
-EXPOSE 8003
+EXPOSE 8004
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-  CMD wget -qO- http://localhost:${PORT:-8003}/health || exit 1
+  CMD wget -qO- http://localhost:${PORT:-8004}/health || exit 1
 
 CMD ["node", "server.js"]

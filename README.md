@@ -37,8 +37,8 @@ yoki har birini alohida terminalda: `npm run backend`, `npm run frontend`, `npm 
 |---|---|
 | Sayt | http://localhost:3000 |
 | Admin panel | http://localhost:3001 |
-| Backend API | http://localhost:8003/api |
-| Health check | http://localhost:8003/health |
+| Backend API | http://localhost:8004/api |
+| Health check | http://localhost:8004/health |
 
 Birinchi ishga tushganda backend `.env`dagi `ADMIN_USERNAME`/`ADMIN_PASSWORD` bilan admin foydalanuvchisini avtomatik yaratadi (Admin panelga shu bilan kiring).
 
@@ -80,4 +80,13 @@ Production'da qo'shimcha ishlaydi: xavfsizlik headerlari (Helmet), rate limiting
 
 ## Testing
 
-Hozircha avtomatlashtirilgan test suite (unit/integration/e2e) yozilmagan — bu bilinadigan bo'shliq, keyingi bosqich sifatida qo'shilishi mumkin. Hozirda sifat nazorati: ESLint (`npm run lint` — frontend/admin), TypeScript (`npx tsc --noEmit` — frontend), va `node --check` orqali sintaksis tekshiruvi (backend, CI'da avtomatik).
+```bash
+cd backend && npm test     # Jest + Supertest + mongodb-memory-server (56 test, real HTTP so'rovlar, xotiradagi MongoDB'ga qarshi)
+cd frontend && npm test    # Vitest + React Testing Library (utils, Zustand store, komponentlar)
+```
+
+Backend testlari `app.js` (Express ilovasi, `server.js`dan alohida — Mongo ulanishi/`app.listen()`siz) ga qarshi ishlaydi, har bir test fayli o'zining vaqtinchalik in-memory MongoDB nusxasini oladi. Qamrov: auth, wallpapers/categories/orders/site-ratings/reviews/features/contacts/settings CRUD'lari, buyurtma narxini serverda qayta hisoblash, reyting agregatsiyasi, CORS/mongo-sanitize xavfsizligi, Telegram bot integratsiyasi (muvaffaqiyat/xato/sozlanmagan holatlar).
+
+Frontend testlari: `utils/phone.js` (telefon mask), `store/useStore.ts` (savat/sevimlilar logikasi), `WallpaperCard`/`Cart` komponentlari.
+
+E2E (Playwright/Cypress) va admin panel testlari hali yozilmagan — keyingi bosqich sifatida qo'shilishi mumkin. Sifat nazorati CI'da avtomatik: ESLint (frontend/admin), TypeScript (`tsc --noEmit`, frontend), va yuqoridagi ikkala test suite har bir push'da (`.github/workflows/ci.yml`).

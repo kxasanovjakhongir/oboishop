@@ -20,11 +20,9 @@ jobs:
           cache: npm
           cache-dependency-path: backend/package-lock.json
       - run: npm ci
-      # No automated test suite exists yet (see README) — this syntax-checks
-      # every file as a minimal sanity gate rather than silently skipping
-      # verification entirely.
-      - name: Syntax check
-        run: find . -name '*.js' -not -path './node_modules/*' -print0 | xargs -0 -n1 node --check
+      # mongodb-memory-server downloads a real mongod binary to run tests
+      # against — no separate MongoDB service container needed in CI.
+      - run: npm test
 
   frontend:
     runs-on: ubuntu-latest
@@ -41,6 +39,7 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npx tsc --noEmit -p tsconfig.json
+      - run: npm test
       - run: npm run build
         env:
           VITE_API_URL: https://api.example.com/api

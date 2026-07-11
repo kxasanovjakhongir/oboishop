@@ -5,6 +5,26 @@ import SEO from '../components/ui/SEO';
 
 const API = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8000';
 
+function QuantityStepper({ quantity, onChange }) {
+  return (
+    <div className="flex items-center border border-stone-200 dark:border-stone-700 rounded-lg overflow-hidden flex-shrink-0">
+      <button
+        onClick={() => onChange(quantity - 1)}
+        className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center text-stone-500 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-700 active:bg-stone-200 dark:active:bg-stone-600 transition-colors font-bold touch-manipulation"
+      >
+        −
+      </button>
+      <span className="w-8 text-center text-sm font-semibold text-stone-800 dark:text-white">{quantity}</span>
+      <button
+        onClick={() => onChange(quantity + 1)}
+        className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center text-stone-500 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-700 active:bg-stone-200 dark:active:bg-stone-600 transition-colors font-bold touch-manipulation"
+      >
+        +
+      </button>
+    </div>
+  );
+}
+
 export default function Cart() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -31,72 +51,79 @@ export default function Cart() {
   }
 
   return (
-    <div className="section py-8">
+    <div className="section py-6 sm:py-8">
       <SEO noindex title={t('cart.title')} path="/cart" />
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-stone-800 dark:text-white">{t('cart.title')}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-stone-800 dark:text-white">{t('cart.title')}</h1>
         <p className="text-stone-500 dark:text-stone-400 text-sm mt-0.5">{t('cart.count', { count: cart.length })}</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         <div className="lg:col-span-2 space-y-3">
           {cart.map(({ wallpaper, quantity }) => {
             const image = wallpaper.images?.[0] ? `${API}${wallpaper.images[0]}` : null;
             const price = priceOf(wallpaper);
             return (
-              <div key={wallpaper._id} className="flex items-center gap-4 bg-white dark:bg-stone-800 rounded-2xl p-4 border border-stone-100 dark:border-stone-700">
-                <Link to={`/product/${wallpaper._id}`} className="w-20 h-20 rounded-xl overflow-hidden bg-stone-100 dark:bg-stone-700 flex-shrink-0">
-                  {image && <img src={image} alt={wallpaper.name} className="w-full h-full object-cover" />}
-                </Link>
-                <div className="flex-1 min-w-0">
-                  <Link to={`/product/${wallpaper._id}`} className="font-semibold text-stone-800 dark:text-white text-sm hover:text-orange-600 transition-colors line-clamp-1">
-                    {wallpaper.name}
+              <div key={wallpaper._id} className="bg-white dark:bg-stone-800 rounded-2xl p-3.5 sm:p-4 border border-stone-100 dark:border-stone-700">
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <Link to={`/product/${wallpaper._id}`} className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-stone-100 dark:bg-stone-700 flex-shrink-0">
+                    {image && <img src={image} alt={wallpaper.name} className="w-full h-full object-cover" />}
                   </Link>
-                  <p className="text-orange-600 font-bold text-sm mt-1">{price.toLocaleString()} {t('common.sum')}</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <Link to={`/product/${wallpaper._id}`} className="font-semibold text-stone-800 dark:text-white text-sm hover:text-orange-600 transition-colors line-clamp-2 sm:line-clamp-1">
+                        {wallpaper.name}
+                      </Link>
+                      <button
+                        onClick={() => removeFromCart(wallpaper._id)}
+                        aria-label={t('cart.remove')}
+                        className="sm:hidden w-9 h-9 -mt-1.5 -mr-1.5 flex items-center justify-center text-stone-400 hover:text-red-600 transition-colors flex-shrink-0 touch-manipulation"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                    <p className="text-orange-600 font-bold text-sm mt-1">{price.toLocaleString()} {t('common.sum')}</p>
+
+                    {/* Mobile: stepper + line total below the name */}
+                    <div className="flex sm:hidden items-center justify-between mt-3">
+                      <QuantityStepper quantity={quantity} onChange={(q) => updateCartQuantity(wallpaper._id, q)} />
+                      <p className="font-bold text-stone-800 dark:text-white text-sm">{(price * quantity).toLocaleString()} {t('common.sum')}</p>
+                    </div>
+                  </div>
+
+                  {/* Desktop: stepper + line total + delete inline */}
+                  <div className="hidden sm:flex items-center gap-4 flex-shrink-0">
+                    <QuantityStepper quantity={quantity} onChange={(q) => updateCartQuantity(wallpaper._id, q)} />
+                    <p className="w-24 text-right font-bold text-stone-800 dark:text-white text-sm">{(price * quantity).toLocaleString()}</p>
+                    <button
+                      onClick={() => removeFromCart(wallpaper._id)}
+                      aria-label={t('cart.remove')}
+                      className="text-stone-400 hover:text-red-600 transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center border border-stone-200 dark:border-stone-700 rounded-lg overflow-hidden flex-shrink-0">
-                  <button
-                    onClick={() => updateCartQuantity(wallpaper._id, quantity - 1)}
-                    className="w-8 h-8 flex items-center justify-center text-stone-500 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors font-bold"
-                  >
-                    −
-                  </button>
-                  <span className="w-8 text-center text-sm font-semibold text-stone-800 dark:text-white">{quantity}</span>
-                  <button
-                    onClick={() => updateCartQuantity(wallpaper._id, quantity + 1)}
-                    className="w-8 h-8 flex items-center justify-center text-stone-500 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors font-bold"
-                  >
-                    +
-                  </button>
-                </div>
-                <p className="w-24 text-right font-bold text-stone-800 dark:text-white text-sm flex-shrink-0">
-                  {(price * quantity).toLocaleString()}
-                </p>
-                <button
-                  onClick={() => removeFromCart(wallpaper._id)}
-                  aria-label={t('cart.remove')}
-                  className="text-stone-400 hover:text-red-600 transition-colors flex-shrink-0"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
               </div>
             );
           })}
-          <Link to="/catalog" className="inline-flex items-center gap-1.5 text-orange-600 font-semibold text-sm hover:underline mt-2">
+          <Link to="/catalog" className="inline-flex items-center gap-1.5 text-orange-600 font-semibold text-sm hover:underline mt-2 py-2 touch-manipulation">
             ← {t('cart.continueShopping')}
           </Link>
         </div>
 
-        <div className="bg-white dark:bg-stone-800 rounded-2xl p-6 border border-stone-100 dark:border-stone-700 h-fit sticky top-24">
+        <div className="bg-white dark:bg-stone-800 rounded-2xl p-5 sm:p-6 border border-stone-100 dark:border-stone-700 h-fit lg:sticky lg:top-24">
           <div className="flex items-center justify-between mb-4 pb-4 border-b border-stone-100 dark:border-stone-700">
             <span className="text-stone-500 dark:text-stone-400 font-medium">{t('cart.total')}</span>
-            <span className="text-2xl font-bold text-orange-600">{total.toLocaleString()} <span className="text-sm font-normal text-stone-500 dark:text-stone-400">{t('common.sum')}</span></span>
+            <span className="text-xl sm:text-2xl font-bold text-orange-600">{total.toLocaleString()} <span className="text-sm font-normal text-stone-500 dark:text-stone-400">{t('common.sum')}</span></span>
           </div>
           <button
             onClick={() => navigate('/checkout')}
-            className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 rounded-xl transition-colors"
+            className="w-full bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-white font-bold py-4 rounded-xl transition-all touch-manipulation"
           >
             {t('cart.checkout')}
           </button>

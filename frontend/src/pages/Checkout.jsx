@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { createOrder } from '../api';
 import useStore from '../store/useStore';
 import SEO from '../components/ui/SEO';
+import { formatUzPhone } from '../utils/phone';
 
 const API = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8000';
 const EMPTY_FORM = { customerName: '', phone: '', address: '', comment: '' };
@@ -69,15 +70,16 @@ export default function Checkout() {
       <h1 className="text-2xl font-bold text-stone-800 dark:text-white mb-6">{t('checkout.title')}</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <form onSubmit={handleSubmit} className="lg:col-span-2 bg-white dark:bg-stone-800 rounded-2xl p-6 border border-stone-100 dark:border-stone-700 space-y-4">
+        <form onSubmit={handleSubmit} className="lg:col-span-2 bg-white dark:bg-stone-800 rounded-2xl p-5 sm:p-6 border border-stone-100 dark:border-stone-700 space-y-4">
           <div>
             <label className="block text-sm font-medium text-stone-600 dark:text-stone-300 mb-1.5">{t('checkout.nameLabel')}</label>
             <input
               required
+              autoComplete="name"
               value={form.customerName}
               onChange={(e) => setForm((f) => ({ ...f, customerName: e.target.value }))}
               placeholder={t('checkout.namePlaceholder')}
-              className="w-full border border-stone-200 dark:border-stone-700 dark:bg-stone-900 dark:text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full border border-stone-200 dark:border-stone-700 dark:bg-stone-900 dark:text-white rounded-xl px-4 py-3 sm:py-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
             />
           </div>
           <div>
@@ -85,19 +87,22 @@ export default function Checkout() {
             <input
               required
               type="tel"
+              inputMode="tel"
+              autoComplete="tel"
               value={form.phone}
-              onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+              onChange={(e) => setForm((f) => ({ ...f, phone: formatUzPhone(e.target.value) }))}
               placeholder={t('checkout.phonePlaceholder')}
-              className="w-full border border-stone-200 dark:border-stone-700 dark:bg-stone-900 dark:text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full border border-stone-200 dark:border-stone-700 dark:bg-stone-900 dark:text-white rounded-xl px-4 py-3 sm:py-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-stone-600 dark:text-stone-300 mb-1.5">{t('checkout.addressLabel')}</label>
             <input
+              autoComplete="street-address"
               value={form.address}
               onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
               placeholder={t('checkout.addressPlaceholder')}
-              className="w-full border border-stone-200 dark:border-stone-700 dark:bg-stone-900 dark:text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full border border-stone-200 dark:border-stone-700 dark:bg-stone-900 dark:text-white rounded-xl px-4 py-3 sm:py-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
             />
           </div>
           <div>
@@ -107,7 +112,7 @@ export default function Checkout() {
               value={form.comment}
               onChange={(e) => setForm((f) => ({ ...f, comment: e.target.value }))}
               placeholder={t('checkout.commentPlaceholder')}
-              className="w-full border border-stone-200 dark:border-stone-700 dark:bg-stone-900 dark:text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+              className="w-full border border-stone-200 dark:border-stone-700 dark:bg-stone-900 dark:text-white rounded-xl px-4 py-3 sm:py-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none transition-shadow"
             />
           </div>
 
@@ -116,13 +121,13 @@ export default function Checkout() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 rounded-xl transition-colors disabled:opacity-60"
+            className="w-full bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-white font-bold py-4 rounded-xl transition-all disabled:opacity-60 touch-manipulation"
           >
             {submitting ? t('checkout.submitting') : t('checkout.submit')}
           </button>
         </form>
 
-        <div className="bg-white dark:bg-stone-800 rounded-2xl p-6 border border-stone-100 dark:border-stone-700 h-fit">
+        <div className="bg-white dark:bg-stone-800 rounded-2xl p-5 sm:p-6 border border-stone-100 dark:border-stone-700 h-fit">
           <h2 className="font-bold text-stone-800 dark:text-white mb-4">{t('checkout.yourOrder')}</h2>
           <div className="space-y-3 mb-4 pb-4 border-b border-stone-100 dark:border-stone-700">
             {cart.map(({ wallpaper, quantity }) => {
