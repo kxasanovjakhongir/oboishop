@@ -1,11 +1,19 @@
 services:
   mongo:
-    image: mongo:7
+    # MongoDB 5.0+ server binaries require an AVX-capable CPU and simply
+    # refuse to start (silent crash-loop, no useful log) on older/budget VPS
+    # hardware that lacks it. Pinned to 4.4 — the last version without that
+    # requirement — for broad compatibility. If your host CPU *does* support
+    # AVX (`grep avx /proc/cpuinfo` on the host), you can move this back to
+    # `mongo:7` for a supported, non-EOL server version.
+    image: mongo:4.4
     restart: unless-stopped
     volumes:
       - mongo_data:/data/db
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      # mongo:4.4's image ships the legacy `mongo` shell, not `mongosh`
+      # (only bundled from later server versions on).
+      test: ["CMD", "mongo", "--quiet", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -23,6 +31,13 @@ services:
       NODE_ENV: production
       MONGODB_URI: mongodb://mongo:27017/wallpaper_studio
       CORS_ORIGINS: https://${DOMAIN},https://www.${DOMAIN},https://${ADMIN_DOMAIN}
+      # Caps V8's old-space heap so Node gets OOM-killed by itself with a
+      # clear "heap out of memory" log well below the container/VPS memory
+      # limit, instead of the kernel OOM-killer silently killing the
+      # process (or the whole container) with no diagnostic at all. 256MB
+      # is sized for a ~1GB RAM VPS also running Mongo + Nginx — raise it
+      # (e.g. 512) if the box has more headroom.
+      NODE_OPTIONS: --max-old-space-size=256
     volumes:
       - backend_uploads:/app/uploads
     depends_on:
@@ -65,6 +80,7 @@ services:
       API_DOMAIN: ${API_DOMAIN}
     volumes:
       - ./docker/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./docker/nginx-tuning.conf:/etc/nginx/conf.d/00-tuning.conf:ro
       - ./docker/ssl-params.conf:/etc/nginx/ssl-params.conf:ro
       - ./data/certbot/www:/var/www/certbot:ro
       - ./data/certbot/conf:/etc/letsencrypt:ro
