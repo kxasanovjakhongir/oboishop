@@ -53,7 +53,7 @@ export default function Features() {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <h1 className="text-xl font-bold text-stone-800 mb-1">Bizning afzalliklar</h1>
       <p className="text-stone-400 text-sm mb-6">Bosh sahifa va "Biz haqimizda"dagi "Nima uchun bizni tanlashadi?" bo'limi</p>
 

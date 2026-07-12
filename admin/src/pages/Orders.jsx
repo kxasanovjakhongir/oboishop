@@ -41,7 +41,7 @@ export default function Orders() {
   const filtered = filter === 'all' ? orders : orders.filter((o) => o.status === filter);
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <h1 className="text-xl font-bold text-stone-800 mb-6">Buyurtmalar</h1>
 
       <div className="flex flex-wrap gap-2 mb-6">

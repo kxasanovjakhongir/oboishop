@@ -23,7 +23,7 @@ export default function Contacts() {
   const unread = contacts.filter((c) => !c.read).length;
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <div className="flex items-center gap-3 mb-6">
         <h1 className="text-xl font-bold text-stone-800">Murojaatlar</h1>
         {unread > 0 && (

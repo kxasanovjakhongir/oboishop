@@ -4,3 +4,12 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: system-ui, sans-serif; background: #f8fafc; }
+
+/* iOS Safari auto-zooms the page on focus for any text input under 16px —
+   this floors every form field so that never happens, without hunting
+   down every text-sm input individually. Sits outside any @layer, so per
+   CSS cascade-layer rules it wins over Tailwind's layered utilities
+   regardless of source order. */
+input, textarea, select {
+  font-size: 16px;
+}

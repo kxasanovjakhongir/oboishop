@@ -49,7 +49,7 @@ export default function Reviews() {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <h1 className="text-xl font-bold text-stone-800 mb-6">Sharh va reyting</h1>
 
       <div className="flex gap-2 mb-6">

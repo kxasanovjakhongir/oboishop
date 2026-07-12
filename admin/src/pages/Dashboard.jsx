@@ -25,7 +25,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-stone-800">Salom, {username}! 👋</h1>
         <p className="text-stone-400 text-sm mt-1">Wallpaper Studio Admin Paneli</p>
@@ -51,7 +51,7 @@ export default function Dashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
         {CARDS.map((card) => (
           <Link
             key={card.label}
