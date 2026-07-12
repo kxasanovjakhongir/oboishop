@@ -28,11 +28,27 @@ const seedFeatures = async () => {
   }
 };
 
+const seedHistory = async () => {
+  const History = require('./models/History');
+  const count = await History.countDocuments();
+  if (count === 0) {
+    await History.insertMany([
+      { year: '2014', text: "Toshkentda kichik oboy do'koni sifatida faoliyat boshlandi", order: 0 },
+      { year: '2017', text: 'Assortiment 500+ namunaga yetdi, 2 ta yangi filial ochildi', order: 1 },
+      { year: '2020', text: 'Online savdo platformasi ishga tushirildi', order: 2 },
+      { year: '2023', text: '3D Virtual Studio texnologiyasi joriy qilindi', order: 3 },
+      { year: '2024', text: "5000+ baxtli mijoz va 1000+ oboy namunasi", order: 4 },
+    ]);
+    logger.info('Tarix (history) seed qilindi');
+  }
+};
+
 mongoose.connect(process.env.MONGODB_URI)
   .then(async () => {
     logger.info('MongoDB ulandi');
     await seedAdmin();
     await seedFeatures();
+    await seedHistory();
     app.listen(process.env.PORT, () => {
       logger.info(`Server http://localhost:${process.env.PORT} da ishlamoqda (${process.env.NODE_ENV || 'development'})`);
     });

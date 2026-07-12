@@ -8,6 +8,7 @@ import Categories from './pages/Categories';
 import Contacts from './pages/Contacts';
 import Settings from './pages/Settings';
 import Features from './pages/Features';
+import History from './pages/History';
 import Reviews from './pages/Reviews';
 import Orders from './pages/Orders';
 
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="orders" element={<Orders />} />
           <Route path="contacts" element={<Contacts />} />
           <Route path="features" element={<Features />} />
+          <Route path="history" element={<History />} />
           <Route path="reviews" element={<Reviews />} />
           <Route path="settings" element={<Settings />} />
         </Route>

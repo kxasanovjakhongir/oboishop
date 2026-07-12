@@ -23,6 +23,7 @@ export const createContact = (data) => api.post('/contacts', data);
 export const getStats = () => api.get('/stats');
 export const getSettings = () => api.get('/settings');
 export const getFeatures = () => api.get('/features');
+export const getHistory = () => api.get('/history');
 export const getContacts = () => api.get('/contacts');
 export const markContactRead = (id) => api.put(`/contacts/${id}/read`);
 export const deleteContact = (id) => api.delete(`/contacts/${id}`);

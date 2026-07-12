@@ -45,6 +45,11 @@ export const createFeature = (data) => api.post('/features', data);
 export const updateFeature = (id, data) => api.put(`/features/${id}`, data);
 export const deleteFeature = (id) => api.delete(`/features/${id}`);
 
+export const getHistory = () => api.get('/history');
+export const createHistory = (data) => api.post('/history', data);
+export const updateHistory = (id, data) => api.put(`/history/${id}`, data);
+export const deleteHistory = (id) => api.delete(`/history/${id}`);
+
 export const getReviews = () => api.get('/reviews/all');
 export const deleteReview = (id) => api.delete(`/reviews/${id}`);
 
