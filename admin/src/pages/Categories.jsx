@@ -51,7 +51,7 @@ export default function Categories() {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <h1 className="text-xl font-bold text-stone-800 mb-6">Kategoriyalar</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

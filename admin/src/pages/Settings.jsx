@@ -50,7 +50,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="p-6 max-w-2xl">
+    <div className="p-4 sm:p-6 max-w-2xl">
       <h1 className="text-xl font-bold text-stone-800 mb-6">Sozlamalar</h1>
 
       {loading || !form ? (

@@ -54,6 +54,7 @@ app.use('/api/contacts', require('./routes/contacts'));
 app.use('/api/stats', require('./routes/stats'));
 app.use('/api/settings', require('./routes/settings'));
 app.use('/api/features', require('./routes/features'));
+app.use('/api/history', require('./routes/history'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/site-ratings', require('./routes/siteRatings'));
 app.use('/api/orders', require('./routes/orders'));

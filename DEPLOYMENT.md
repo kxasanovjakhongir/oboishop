@@ -176,10 +176,23 @@ curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
 apt install -y nodejs
 npm i -g pm2
 
-# MongoDB 7 — Ubuntu 22.04 (jammy) uchun. Boshqa versiya bo'lsa
+# MongoDB — Ubuntu 22.04 (jammy) uchun. Boshqa versiya bo'lsa
 # mongodb.com/docs/manual/administration/install-on-linux dan aniq buyruqni oling.
+#
+# MUHIM: MongoDB 5.0+ server binariylari AVX protsessor buyrug'ini talab
+# qiladi va eski/arzon VPS'larda (AVX'siz) hech qanday log qoldirmasdan
+# ishga tushmay qoladi. Avval quyidagini tekshiring:
+#   grep avx /proc/cpuinfo
+# Bo'sh natija qaytsa (AVX yo'q) — 7.0 o'rniga 4.4 o'rnating (pastda,
+# skobkadagi qatorlar). AVX bor bo'lsa 7.0 (yangi, qo'llab-quvvatlanadigan
+# versiya) ishlating.
 curl -fsSL https://pgp.mongodb.com/server-7.0.asc | gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
 echo "deb [signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+# AVX'siz server bo'lsa, yuqoridagi 3 qatorni shu bilan almashtiring:
+#   curl -fsSL https://pgp.mongodb.com/server-4.4.asc | gpg -o /usr/share/keyrings/mongodb-server-4.4.gpg --dearmor
+#   echo "deb [signed-by=/usr/share/keyrings/mongodb-server-4.4.gpg] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list
+# (4.4 EOL bo'lgan — faqat AVX'siz uskunada muqobil yo'q bo'lgani uchun ishlatiladi;
+#  imkon qadar MongoDB Atlas kabi boshqariladigan xizmatga o'tishni ko'rib chiqing.)
 apt update
 apt install -y mongodb-org
 systemctl enable --now mongod
@@ -226,6 +239,24 @@ npm run build           # -> admin/dist
 
 ### 4. Nginx — uchta alohida server blok (`/etc/nginx/sites-available/oboishop`)
 
+To'rtta real subdomen (`oboishop.uz`, `www.oboishop.uz`, `admin.oboishop.uz`,
+`api.oboishop.uz`) bo'lgani uchun standart `server_names_hash_bucket_size`
+(ko'p buildlarda 32) yetarli bo'lmasligi mumkin — nginx
+`could not build server_names_hash, you should increase
+server_names_hash_bucket_size` xatosi bilan ishga tushmay qoladi. Avval
+`/etc/nginx/nginx.conf` faylini oching va `http { ... }` blokining ichiga
+(har qanday joyga, `include /etc/nginx/sites-enabled/*;` qatoridan oldin)
+qo'shing:
+
+```nginx
+http {
+    server_names_hash_bucket_size 64;
+    # ... qolgan standart qatorlar shu yerda qoladi ...
+}
+```
+
+Endi server bloklarni yozing:
+
 ```nginx
 # Frontend (mijozlar sayti)
 server {
@@ -259,6 +290,20 @@ server {
     listen 80;
     server_name api.oboishop.uz;
     client_max_body_size 20m;
+
+    # Yuklangan rasm/tekstura fayllari hech qachon o'zgarmaydi (multer har
+    # birini noyob nom bilan saqlaydi) — shuning uchun uzoq muddat
+    # keshlanadi, dinamik API javoblaridan alohida.
+    location /uploads/ {
+        proxy_pass http://localhost:8004;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        expires 30d;
+        add_header Cache-Control "public";
+    }
+
     location / {
         proxy_pass http://localhost:8004;
         proxy_http_version 1.1;
@@ -335,3 +380,7 @@ cd ../admin && npm ci && npm run build
 | Telegram xabar kelmayapti | `backend/.env.production`da token/chat_id to'g'riligini tekshiring, `docker compose logs backend \| grep -i telegram` |
 | Rasm yuklanmayapti | `backend_uploads` volume mavjudligini tekshiring: `docker volume ls` |
 | CORS xatosi (brauzer konsolida) | `docker-compose.yml`dagi `CORS_ORIGINS` domeningizga mos kelishini tekshiring |
+| Mongo konteyner/xizmat sira "healthy" bo'lmaydi, log deyarli bo'sh | AVX muammosi bo'lishi mumkin: `grep avx /proc/cpuinfo` bo'sh qaytsa, `mongo:7`/`mongodb-org 7.0` emas, `mongo:4.4`/`mongodb-org 4.4` kerak (yuqoridagi bosqichlarda izohlangan) |
+| Backend to'satdan "heap out of memory" bilan qulaydi yoki PM2/Docker uni tinimsiz qayta ishga tushiradi | RAM kam bo'lishi mumkin — `NODE_OPTIONS`/`node_args`dagi `--max-old-space-size` qiymatini kamaytiring yoki VPS RAM'ini oshiring |
+| `nginx -t` "server_names_hash_bucket_size" xatosi beradi | Docker: `docker/nginx-tuning.conf` mount qilinganini tekshiring. Bare-metal: `/etc/nginx/nginx.conf`ning `http{}` blokiga `server_names_hash_bucket_size 64;` qo'shilganini tekshiring |
+| Rasmlar sekin yuklanadi / har safar qayta so'raladi | `/uploads/` uchun alohida `expires`/`Cache-Control` bloki nginx konfiguratsiyasida borligini tekshiring (docker/nginx.conf.template yoki bare-metal server blok) |
