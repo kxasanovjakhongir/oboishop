@@ -49,7 +49,7 @@ function AppLayout() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-stone-50 dark:bg-stone-950 transition-colors overflow-x-hidden pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
+    <div className="flex flex-col min-h-screen bg-stone-50 dark:bg-stone-950 transition-colors overflow-x-hidden pb-[calc(5.5rem+env(safe-area-inset-bottom))] lg:pb-0">
       <Header />
       <div className="flex-1">
         <Routes>

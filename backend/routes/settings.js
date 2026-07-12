@@ -25,12 +25,19 @@ router.put('/', auth, uploadSettings.single('logo'), async (req, res) => {
     const {
       siteName, phone, telegramUsername, instagramUsername, email, address,
       workHoursWeekday, workHoursWeekend, statYears, statClients, statSamples,
+      telegramBotToken, telegramChatIds,
     } = req.body;
     const settings = await getOrCreateSettings();
     Object.assign(settings, {
       siteName, phone, telegramUsername, instagramUsername, email, address,
       workHoursWeekday, workHoursWeekend, statYears, statClients, statSamples,
+      telegramBotToken,
     });
+    // Admin enters one chat ID per line (or comma-separated) in a textarea —
+    // split it into the array the bot notifier iterates over.
+    if (typeof telegramChatIds === 'string') {
+      settings.telegramChatIds = telegramChatIds.split(/[\n,]+/).map((id) => id.trim()).filter(Boolean);
+    }
     if (req.file) settings.logo = `/uploads/images/${req.file.filename}`;
     await settings.save();
     res.json(settings);

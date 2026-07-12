@@ -1,3 +1,5 @@
+const db = require('./setup');
+const Settings = require('../models/Settings');
 const { sendTelegramMessage } = require('../utils/telegram');
 
 describe('sendTelegramMessage', () => {
@@ -5,13 +7,16 @@ describe('sendTelegramMessage', () => {
   const originalChatId = process.env.TELEGRAM_CHAT_ID;
   const originalFetch = global.fetch;
 
-  afterEach(() => {
+  beforeAll(async () => db.connect());
+  afterEach(async () => {
+    await Settings.deleteMany({});
     process.env.TELEGRAM_BOT_TOKEN = originalToken;
     process.env.TELEGRAM_CHAT_ID = originalChatId;
     global.fetch = originalFetch;
   });
+  afterAll(async () => db.closeDatabase());
 
-  it('no-ops without throwing when the bot is not configured', async () => {
+  it('no-ops without throwing when nothing is configured', async () => {
     delete process.env.TELEGRAM_BOT_TOKEN;
     delete process.env.TELEGRAM_CHAT_ID;
     global.fetch = jest.fn();
@@ -20,7 +25,7 @@ describe('sendTelegramMessage', () => {
     expect(global.fetch).not.toHaveBeenCalled();
   });
 
-  it('posts to the Telegram Bot API when configured', async () => {
+  it('falls back to env vars when no Settings document overrides them', async () => {
     process.env.TELEGRAM_BOT_TOKEN = 'test-token';
     process.env.TELEGRAM_CHAT_ID = '12345';
     global.fetch = jest.fn().mockResolvedValue({ ok: true });
@@ -35,11 +40,29 @@ describe('sendTelegramMessage', () => {
     expect(body).toEqual({ chat_id: '12345', text: 'Yangi buyurtma', parse_mode: 'HTML' });
   });
 
-  it('does not throw when the Telegram API responds with an error', async () => {
-    process.env.TELEGRAM_BOT_TOKEN = 'test-token';
-    process.env.TELEGRAM_CHAT_ID = '12345';
-    global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 400, text: async () => 'Bad Request' });
+  it('uses the DB-stored token and sends to every configured chat id, overriding env vars', async () => {
+    process.env.TELEGRAM_BOT_TOKEN = 'env-token';
+    process.env.TELEGRAM_CHAT_ID = 'env-chat';
+    await Settings.create({ telegramBotToken: 'db-token', telegramChatIds: ['111', '222', '333'] });
+    global.fetch = jest.fn().mockResolvedValue({ ok: true });
+
+    await sendTelegramMessage('Yangi buyurtma');
+
+    expect(global.fetch).toHaveBeenCalledTimes(3);
+    global.fetch.mock.calls.forEach(([url]) => {
+      expect(url).toBe('https://api.telegram.org/botdb-token/sendMessage');
+    });
+    const chatIdsSent = global.fetch.mock.calls.map(([, opts]) => JSON.parse(opts.body).chat_id).sort();
+    expect(chatIdsSent).toEqual(['111', '222', '333']);
+  });
+
+  it('does not throw when the Telegram API errors for one of several recipients', async () => {
+    await Settings.create({ telegramBotToken: 'test-token', telegramChatIds: ['12345', '67890'] });
+    global.fetch = jest.fn()
+      .mockResolvedValueOnce({ ok: false, status: 400, text: async () => 'Bad Request' })
+      .mockResolvedValueOnce({ ok: true });
 
     await expect(sendTelegramMessage('salom')).resolves.toBeUndefined();
+    expect(global.fetch).toHaveBeenCalledTimes(2);
   });
 });

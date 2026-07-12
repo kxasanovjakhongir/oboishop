@@ -15,6 +15,14 @@ const FIELDS = [
   { name: 'statYears', label: 'Statistika: Yil tajriba', placeholder: '10+' },
   { name: 'statClients', label: 'Statistika: Baxtli mijozlar', placeholder: '5000+' },
   { name: 'statSamples', label: 'Statistika: Oboy namunalari', placeholder: '1000+' },
+  { name: 'telegramBotToken', label: 'Telegram Bot Token', placeholder: '123456789:AAExampleTokenFromBotFather' },
+  {
+    name: 'telegramChatIds',
+    label: "Buyurtma xabarnomalari yuboriladigan Telegram Chat ID'lar",
+    placeholder: '123456789\n987654321',
+    hint: "Har birini yangi qatorga (yoki vergul bilan ajratib) yozing — buyurtma tushganda shu odamlarning barchasiga xabar boradi.",
+    type: 'textarea',
+  },
 ];
 
 export default function Settings() {
@@ -25,7 +33,9 @@ export default function Settings() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    getSettings().then((r) => setForm(r.data)).finally(() => setLoading(false));
+    getSettings()
+      .then((r) => setForm({ ...r.data, telegramChatIds: (r.data.telegramChatIds || []).join('\n') }))
+      .finally(() => setLoading(false));
   }, []);
 
   const handleChange = (e) => {
@@ -41,7 +51,7 @@ export default function Settings() {
       FIELDS.forEach((f) => fd.append(f.name, form[f.name] ?? ''));
       if (logoFile) fd.append('logo', logoFile);
       const { data } = await updateSettings(fd);
-      setForm(data);
+      setForm({ ...data, telegramChatIds: (data.telegramChatIds || []).join('\n') });
       setLogoFile(null);
       setSaved(true);
     } finally {
@@ -82,13 +92,25 @@ export default function Settings() {
           {FIELDS.map((f) => (
             <div key={f.name}>
               <label className="block text-sm font-semibold text-stone-700 mb-2">{f.label}</label>
-              <input
-                name={f.name}
-                value={form[f.name] ?? ''}
-                onChange={handleChange}
-                placeholder={f.placeholder}
-                className="w-full border border-stone-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all bg-stone-50 focus:bg-white"
-              />
+              {f.type === 'textarea' ? (
+                <textarea
+                  name={f.name}
+                  value={form[f.name] ?? ''}
+                  onChange={handleChange}
+                  placeholder={f.placeholder}
+                  rows={3}
+                  className="w-full border border-stone-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all bg-stone-50 focus:bg-white resize-none"
+                />
+              ) : (
+                <input
+                  name={f.name}
+                  value={form[f.name] ?? ''}
+                  onChange={handleChange}
+                  placeholder={f.placeholder}
+                  className="w-full border border-stone-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all bg-stone-50 focus:bg-white"
+                />
+              )}
+              {f.hint && <p className="text-xs text-stone-400 mt-1.5">{f.hint}</p>}
             </div>
           ))}
 
