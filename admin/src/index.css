@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
+:root { color-scheme: light; }
 body { font-family: system-ui, sans-serif; background: #f8fafc; }
 
 /* iOS Safari auto-zooms the page on focus for any text input under 16px —

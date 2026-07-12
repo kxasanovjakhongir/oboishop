@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- Admin panel is light-only (no dark: styles) — without this, phones
+         with auto-dark browser theming (e.g. Android Chrome) invert the
+         page and wash out low-contrast icons like the drawer's close/open
+         buttons to the point of invisibility. -->
+    <meta name="color-scheme" content="light" />
     <!-- Internal tool — must never be indexed or linked-preview'd. -->
     <meta name="robots" content="noindex, nofollow, noarchive" />
     <title>OboiShop — Admin Panel</title>
