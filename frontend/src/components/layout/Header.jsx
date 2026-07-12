@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import useStore from '../../store/useStore';
@@ -23,6 +23,7 @@ export default function Header() {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const lastScrollY = useRef(0);
   const navigate = useNavigate();
+  const location = useLocation();
   const { isDark, toggleDark, favorites, cart } = useStore();
   const cartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
 
@@ -59,6 +60,15 @@ export default function Header() {
     document.body.style.overflow = open ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [open]);
+
+  // Close the mobile menu on every navigation — the logo, cart and
+  // favorites icons stay clickable above the dropdown and don't set
+  // `open` themselves, so without this the panel is left stuck open
+  // over whatever page they navigate to.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setOpen(false);
+  }, [location.pathname]);
 
   const handleSearch = (e) => {
     e.preventDefault();
