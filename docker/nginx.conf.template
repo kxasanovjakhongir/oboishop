@@ -68,6 +68,12 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-Robots-Tag "noindex, nofollow, noarchive" always;
 
+    location /api/uploads/ {
+        rewrite ^/api/uploads/(.*)$ /uploads/$1 break;
+        proxy_pass http://backend:8004;
+        proxy_set_header Host $host;
+    }
+
     location / {
         proxy_pass http://admin:80;
         proxy_set_header Host $host;

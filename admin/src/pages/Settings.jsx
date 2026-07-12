@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getSettings, updateSettings } from '../api';
 
-const API = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL?.replace(/\/api$/, '') || 'http://localhost:8000';
 
 const FIELDS = [
   { name: 'siteName', label: 'Sayt nomi', placeholder: 'Wallpaper Studio' },

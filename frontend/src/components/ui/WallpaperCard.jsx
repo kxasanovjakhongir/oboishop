@@ -5,7 +5,7 @@ import useStore from '../../store/useStore';
 import Stars from './Stars';
 import Lightbox from './Lightbox';
 
-const API = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL?.replace(/\/api$/, '') || 'http://localhost:8000';
 const NEW_THRESHOLD_DAYS = 14;
 
 export default function WallpaperCard({ wallpaper }) {

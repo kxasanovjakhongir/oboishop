@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { getSettings } from '../../api';
 import SiteRatingWidget from '../ui/SiteRatingWidget';
 
-const API = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL?.replace(/\/api$/, '') || 'http://localhost:8000';
 
 const DEFAULT_SETTINGS = {
   phone: '+998 90 123 45 67',

@@ -7,7 +7,7 @@ import Lightbox from '../components/ui/Lightbox';
 import useStore from '../store/useStore';
 import SEO, { SITE_URL } from '../components/ui/SEO';
 
-const API = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL?.replace(/\/api$/, '') || 'http://localhost:8000';
 
 const DEFAULT_SETTINGS = { phone: '+998 90 123 45 67', telegramUsername: 'wallpaperstudio' };
 const NEW_THRESHOLD_DAYS = 14;

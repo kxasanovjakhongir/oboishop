@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../api';
 
-const API = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
+const API = import.meta.env.VITE_API_URL?.replace(/\/api$/, '') || 'http://localhost:5000';
 
 export default function Categories() {
   const [categories, setCategories] = useState([]);

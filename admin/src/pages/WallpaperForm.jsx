@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getCategories, createWallpaper, updateWallpaper } from '../api';
 import api from '../api';
 
-const API = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
+const API = import.meta.env.VITE_API_URL?.replace(/\/api$/, '') || 'http://localhost:5000';
 
 const INITIAL = {
   name: '', description: '', price: '', category: '', color: '',

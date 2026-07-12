@@ -6,7 +6,7 @@ import useStore from '../store/useStore';
 import SEO from '../components/ui/SEO';
 import { formatUzPhone } from '../utils/phone';
 
-const API = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL?.replace(/\/api$/, '') || 'http://localhost:8000';
 const EMPTY_FORM = { customerName: '', phone: '', address: '', comment: '' };
 
 export default function Checkout() {

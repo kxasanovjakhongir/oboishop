@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import useStore from '../store/useStore';
 import SEO from '../components/ui/SEO';
 
-const API = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL?.replace(/\/api$/, '') || 'http://localhost:8000';
 
 function QuantityStepper({ quantity, onChange }) {
   return (
