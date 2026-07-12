@@ -18,7 +18,7 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
 // ─── Helper: get texture URL from wallpaper ──────────────────────────────────
 export const getTextureUrl = (w: Wallpaper | null): string | null => {
   if (!w) return null;
-  const B = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8000';
+  const B = import.meta.env.VITE_API_URL?.replace(/\/api$/, '') || 'http://localhost:8000';
   if (w.texture) return `${B}${w.texture}`;
   if (w.images?.[0]) return `${B}${w.images[0]}`;
   return null;

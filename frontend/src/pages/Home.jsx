@@ -6,7 +6,7 @@ import { getWallpapers, getDiscounted, getCategories, getSettings, getFeatures, 
 import WallpaperCard from '../components/ui/WallpaperCard';
 import SEO, { SITE_URL, SITE_NAME } from '../components/ui/SEO';
 
-const API = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL?.replace(/\/api$/, '') || 'http://localhost:8000';
 
 const fade = { hidden: { opacity: 0, y: 30 }, show: { opacity: 1, y: 0 } };
 const stagger = { show: { transition: { staggerChildren: 0.1 } } };

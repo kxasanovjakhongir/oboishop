@@ -82,8 +82,9 @@ router.post('/', auth, uploadFields, async (req, res) => {
     const { name, description, price, category, color, brand, width, length, material, stock, featured, discount } = req.body;
     const images = req.files?.images?.map(f => `/uploads/images/${f.filename}`) || [];
     const texture = req.files?.texture?.[0] ? `/uploads/textures/${req.files.texture[0].filename}` : '';
-    const count = await Wallpaper.countDocuments();
-    const sku = `OB-${String(count + 1).padStart(4, '0')}`;
+    const last = await Wallpaper.findOne({ sku: /^OB-\d+$/ }).sort({ sku: -1 }).select('sku').lean();
+    const lastNum = last ? parseInt(last.sku.split('-')[1], 10) : 0;
+    const sku = `OB-${String(lastNum + 1).padStart(4, '0')}`;
 
     const wallpaper = new Wallpaper({
       name, description, price: Number(price), category, color, brand,

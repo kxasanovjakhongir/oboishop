@@ -25,7 +25,7 @@ set -a; source .env; set +a
 : "${LETSENCRYPT_EMAIL:?.env da LETSENCRYPT_EMAIL o'rnatilmagan}"
 
 DOMAINS_ARGS="-d $DOMAIN -d www.$DOMAIN -d $ADMIN_DOMAIN -d $API_DOMAIN"
-CERT_PATH="./data/certbot/conf/live/$DOMAIN"
+CERT_PATH="/etc/letsencrypt/live/$DOMAIN"
 
 echo "==> Vaqtinchalik (self-signed) sertifikat yaratilmoqda, nginx ishga tushishi uchun..."
 mkdir -p "./data/certbot/conf/live/$DOMAIN"

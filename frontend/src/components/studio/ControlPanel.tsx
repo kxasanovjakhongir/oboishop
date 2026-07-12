@@ -5,7 +5,7 @@ import { getWallpapers } from '../../api';
 import useStore from '../../store/useStore';
 import type { Wallpaper, WallTarget } from '../../types';
 
-const API = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL?.replace(/\/api$/, '') || 'http://localhost:8000';
 
 const WALL_VALUES: { value: WallTarget; icon: string }[] = [
   { value: 'all',   icon: '⬛' },
