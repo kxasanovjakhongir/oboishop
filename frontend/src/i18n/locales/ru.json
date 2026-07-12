@@ -303,7 +303,6 @@
     "textureScale": "Масштаб текстуры",
     "small": "Меньше",
     "big": "Больше",
-    "textureRotation": "Поворот текстуры",
     "reset": "Сбросить",
     "applyButton": "Применить «{{name}}»",
     "selectWallpaper": "Выберите обои",

@@ -21,8 +21,6 @@ interface StoreState {
   resetRoom: () => void;
   textureScale: number;
   setTextureScale: (s: number) => void;
-  textureRotation: number;
-  setTextureRotation: (r: number) => void;
 
   // Filters
   filters: FilterState;
@@ -68,8 +66,6 @@ const useStore = create<StoreState>()(
       resetRoom: () => set({ wallTextures: EMPTY_TEXTURES, selectedWallpaper: null }),
       textureScale: 1,
       setTextureScale: (s) => set({ textureScale: s }),
-      textureRotation: 0,
-      setTextureRotation: (r) => set({ textureRotation: r }),
 
       filters: DEFAULT_FILTERS,
       setFilter: (key, value) => set((s) => ({ filters: { ...s.filters, [key]: value } })),

@@ -303,7 +303,6 @@
     "textureScale": "Texture scale",
     "small": "Small",
     "big": "Large",
-    "textureRotation": "Texture rotation",
     "reset": "Reset",
     "applyButton": "Apply \"{{name}}\"",
     "selectWallpaper": "Select wallpaper",

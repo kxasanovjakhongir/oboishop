@@ -46,7 +46,7 @@ export default function Studio() {
   const [searchParams] = useSearchParams();
   const [panelOpen, setPanelOpen] = useState(false);
   const {
-    currentRoom, wallTextures, textureScale, textureRotation,
+    currentRoom, wallTextures, textureScale,
     setSelectedWallpaper, applyWallpaper, targetWall,
   } = useStore();
 
@@ -110,7 +110,7 @@ export default function Studio() {
           style={{ width: '100%', height: '100%', display: 'block' }}
         >
           <Suspense fallback={<LoadingBox />}>
-            <RoomComponent t={wallTextures} scale={textureScale} texRot={textureRotation} />
+            <RoomComponent t={wallTextures} scale={textureScale} />
           </Suspense>
           <OrbitControls
             ref={controlsRef}

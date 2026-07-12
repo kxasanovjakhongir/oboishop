@@ -24,7 +24,6 @@ export default function ControlPanel({ onClose }: { onClose?: () => void }) {
     targetWall, setTargetWall,
     applyWallpaper, resetRoom,
     textureScale, setTextureScale,
-    textureRotation, setTextureRotation,
   } = useStore();
 
   const [wallpapers, setWallpapers] = useState<Wallpaper[]>([]);
@@ -192,22 +191,6 @@ export default function ControlPanel({ onClose }: { onClose?: () => void }) {
             />
             <div className="flex justify-between text-xs text-white/30 mt-1">
               <span>{t('studio.small')}</span><span>{t('studio.big')}</span>
-            </div>
-          </div>
-
-          {/* Rotation */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs text-white/50 uppercase tracking-wide font-semibold">{t('studio.textureRotation')}</p>
-              <span className="text-xs text-orange-400 font-mono">{Math.round(textureRotation * 180 / Math.PI)}°</span>
-            </div>
-            <input
-              type="range" min={-Math.PI} max={Math.PI} step={0.05} value={textureRotation}
-              onChange={(e) => setTextureRotation(Number(e.target.value))}
-              className="w-full accent-orange-500 h-1.5 rounded-full"
-            />
-            <div className="flex justify-between text-xs text-white/30 mt-1">
-              <span>-180°</span><span>+180°</span>
             </div>
           </div>
 
