@@ -43,4 +43,15 @@ describe('PUT /api/settings', () => {
     const res = await request(app).put('/api/settings').field('siteName', 'Hack');
     expect(res.status).toBe(401);
   });
+
+  it('parses newline/comma-separated telegramChatIds into an array', async () => {
+    const res = await request(app)
+      .put('/api/settings')
+      .set('Authorization', `Bearer ${token}`)
+      .field('telegramBotToken', '123:abc')
+      .field('telegramChatIds', '111\n222, 333\n\n444');
+    expect(res.status).toBe(200);
+    expect(res.body.telegramBotToken).toBe('123:abc');
+    expect(res.body.telegramChatIds).toEqual(['111', '222', '333', '444']);
+  });
 });

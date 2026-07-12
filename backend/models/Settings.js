@@ -13,6 +13,8 @@ const settingsSchema = new mongoose.Schema({
   statYears: { type: String, default: '10+' },
   statClients: { type: String, default: '5000+' },
   statSamples: { type: String, default: '1000+' },
+  telegramBotToken: { type: String, default: '' },
+  telegramChatIds: { type: [String], default: [] },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Settings', settingsSchema);
